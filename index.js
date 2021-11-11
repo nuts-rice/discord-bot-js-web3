@@ -1,22 +1,26 @@
 const { Client, Intents} = require("discord.js");
+const fs = require("fs");
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
 });
 const config = require("./config.json");
+client.config = config;
+client.commands = new Discord.Collection();
 
-client.on("ready", () => {
-    console.log("Kick the tires, light the fires. I am ready")
-});
+const events = fs.readdirSync("./events").filter(file => file.endsWith(".js"));
+for (const file of events){
+    const eventName = file.split(".")[0];
+    const event = require('./events/${file}');
+    client.on(eventName, event.bind(null, client));
+}
 
-client.on("messageCreate", (message) => {
-    if (!message.content.startsWith (config.prefix) || message.author.bot) return;
-    if (message.content.startsWith('${config.prefix}ping')) {
-        message.channel.send("pong!");
-    } else
 
-        if (message.content.startsWith('${confitg.prefix}minesweeper')){
-            message.channel.send("Let's play minesweeper!")
-        }
-})
+const commands = fs.readdirSync("./commands").filter(file => file.endsWith(".js"));
+for (const file of commands) {
+    const commandName = file.split(".")[0];
+    const command = require('./commands/${file}');
 
+    console.log('Attempting to load command ${commandName}');
+    client.commands.set(command.name, command);
+}
 client.login(config.token);

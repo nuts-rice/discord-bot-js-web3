@@ -1,0 +1,3 @@
+[submodule "discord.ts-example"]
+	path = discord.ts-example
+	url = https://github.com/oceanroleplay/discord.ts-example
